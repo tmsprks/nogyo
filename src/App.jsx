@@ -1,17 +1,21 @@
-import { useState } from 'react'
 import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import About from './pages/About'
+import Homepage from './pages/Homepage'
+import Login from './pages/Login'
+import PageNotFound from './pages/PageNotFound'
+
 
 function App() {
   return (
-    <div className="border border-green-300 rounded-lg">
-      <p className="text-green-500 font-semibold text-xl p-4">
-        nogyo
-      </p>
-      <p className="text-green-500 text-m">
-        A market place to connect farmers and consumers.
-      </p>
-    </div>
-
+   <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Homepage />}/>
+      <Route path="about" element={<About />}/>
+      <Route path="login" element={<Login />}/>
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
+   </BrowserRouter> 
   )
 }
 
