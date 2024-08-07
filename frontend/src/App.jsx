@@ -10,7 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 
 function Logout() {
   localStorage.clear()
-  return <Navigate to="/login" />
+  return <Navigate to="/" />
 }
 
 function RegisterAndLogout(){
@@ -33,6 +33,7 @@ function App() {
         } />
       <Route path="about" element={<About />}/>
       <Route path="login" element={<Login />}/>
+      <Route path="logout" element={<Logout />}/>
       <Route path="register" element={<RegisterAndLogout />}/>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
