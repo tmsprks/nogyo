@@ -21,7 +21,7 @@ class WalletListCreate(generics.ListCreateAPIView):
             print(serializer.error)
 
 
-class WalletDelete(generics.DestoryAPIView):
+class WalletDelete(generics.DestroyAPIView):
     serializer_class = WalletSerializer
     permission_classes = [IsAuthenticated]
 
