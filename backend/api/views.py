@@ -12,7 +12,7 @@ class WalletListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Wallet.objects.filer(author=user)
+        return Wallet.objects.filter(author=user)
     
     def perform_create(self, serializer):
         if serializer.is_valid():
