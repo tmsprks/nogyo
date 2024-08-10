@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
-import Wallet from '../components/Wallet'
-import ConnectButton from '../components/ConnectWallet'
+// import Wallet from '../components/Wallet'
+// import ConnectButton from '../components/ConnectWallet'
 
 function Home() {
-  const [wallets, setWallets] = useState([])
-  const [wallet_chain, setBlockchain] = useState('')
-  const [wallet_address, setWalletAddress] = useState('')
+  // const [wallets, setWallets] = useState([])
+  // const [wallet_chain, setBlockchain] = useState('')
+  // const [wallet_address, setWalletAddress] = useState('')
   const [userInfo, setUserInfo] = useState('')
 
   useEffect(() => {
-    getWallets()
+    // getWallets()
     getUser()
   }, [])
 
@@ -25,46 +25,46 @@ function Home() {
       .catch((err) => alert(err))
   }
 
-  const getWallets = () => {
-    api
-      .get('/api/wallets/')
-      .then((res) => res.data)
-      .then((data) => {
-        setWallets(data)
-        console.log(data)
-      })
-      .catch((err) => alert(err))
-  }
+  // const getWallets = () => {
+  //   api
+  //     .get('/api/wallets/')
+  //     .then((res) => res.data)
+  //     .then((data) => {
+  //       setWallets(data)
+  //       console.log(data)
+  //     })
+  //     .catch((err) => alert(err))
+  // }
 
-  const deleteWallet = (id) => {
-    api
-      .delete(`/api/wallets/delete/${id}/`)
-      .then((res) => {
-        if (res.status === 204) alert('Wallet deleted!')
-        else alert('Failed to delete wallet.')
-        getWallets()
-      })
-      .catch((error) => alert(error))
-  }
+  // const deleteWallet = (id) => {
+  //   api
+  //     .delete(`/api/wallets/delete/${id}/`)
+  //     .then((res) => {
+  //       if (res.status === 204) alert('Wallet deleted!')
+  //       else alert('Failed to delete wallet.')
+  //       getWallets()
+  //     })
+  //     .catch((error) => alert(error))
+  // }
 
-  const createWallet = (e) => {
-    e.preventDefault()
-    api
-      .post('/api/wallets/', { wallet_chain, wallet_address })
-      .then((res) => {
-        if (res.status === 201) alert('Wallet created!')
-        else alert('Failed to make wallet.')
-        getWallets()
-      })
-      .catch((err) => alert(err))
-  }
+  // const createWallet = (e) => {
+  //   e.preventDefault()
+  //   api
+  //     .post('/api/wallets/', { wallet_chain, wallet_address })
+  //     .then((res) => {
+  //       if (res.status === 201) alert('Wallet created!')
+  //       else alert('Failed to make wallet.')
+  //       getWallets()
+  //     })
+  //     .catch((err) => alert(err))
+  // }
 
   return (
     <div className="max-w-md mx-auto bg-white p-8 border border-gray-300 rounded-lg shadow-md">
       <h2 className="text-xl text-green-500 text-center mb-6">
         Hello, {userInfo.username}
       </h2>
-      <h2 className="text-m text-green-500 text-center mb-6">Your Wallet:</h2>
+      {/*<h2 className="text-m text-green-500 text-center mb-6">Your Wallet:</h2>
       <div>
         {wallets.map((wallet) => (
           <Wallet wallet={wallet} onDelete={deleteWallet} key={wallet.id} />
@@ -105,7 +105,7 @@ function Home() {
           value="Submit"
         />
       </form>
-      <ConnectButton />
+      <ConnectButton /> */}
     </div>
   )
 }
