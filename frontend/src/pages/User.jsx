@@ -15,6 +15,7 @@ function User() {
     city: '',
     state: '',
     country: '',
+    zip_code: '',
   })
 
   useEffect(() => {
@@ -84,6 +85,7 @@ function User() {
           city: data.profile?.city || '',
           state: data.profile?.state || '',
           country: data.profile?.country || '',
+          zip_code: data.profile?.zip_code || '',
         })
       })
       .catch((err) => alert(err))
@@ -101,6 +103,7 @@ function User() {
           city: formData.city,
           state: formData.state,
           country: formData.country,
+          zip_code: formData.zip_code,
         },
       })
       .then((res) => {
@@ -119,6 +122,7 @@ function User() {
         alert(err.response ? err.response.data : 'An error occurred')
       })
   }
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData({
@@ -226,6 +230,19 @@ function User() {
           Address Information
         </h2>
 
+        <label htmlFor="street" className="block text-gray-300 text-left">
+          Street:
+        </label>
+        <input
+          className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg"
+          type="text"
+          name="street"
+          id="street"
+          placeholder="Street"
+          value={formData.street}
+          onChange={handleChange}
+        />
+
         <label htmlFor="city" className="block text-gray-300 text-left">
           City:
         </label>
@@ -262,6 +279,19 @@ function User() {
           id="country"
           placeholder="Country"
           value={formData.country}
+          onChange={handleChange}
+        />
+
+        <label htmlFor="zip_code" className="block text-gray-300 text-left">
+          Zip Code:
+        </label>
+        <input
+          className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg"
+          type="text"
+          name="zip_code"
+          id="zip_code"
+          placeholder="Zip Code"
+          value={formData.zip_code}
           onChange={handleChange}
         />
 
