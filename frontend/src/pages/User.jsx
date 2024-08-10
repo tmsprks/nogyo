@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
 import { Link } from 'react-router-dom'
+import { ethers } from 'ethers'
 
 function User() {
   const [formData, setFormData] = useState({
@@ -19,19 +20,73 @@ function User() {
     getUser()
   }, [])
 
+  const connectToMetaMask = async () => {
+    if (window.ethereum) {
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' })
+        const provider = new ethers.BrowserProvider(window.ethereum)
+        const signer = await provider.getSigner()
+        const account = await signer.getAddress()
+        const network = await provider.getNetwork()
+        const chainId = network.chainId.toString()
+        const message = 'Sign this message to connect your wallet.'
+        const signature = await signer.signMessage(message)
+
+        await updateMetaMaskInfo(account, chainId, { message, signature })
+      } catch (error) {
+        console.error('User denied account access', error)
+      }
+    } else {
+      console.error('MetaMask is not installed')
+    }
+  }
+
+  const updateMetaMaskInfo = async (walletAddress, chainId, signingInfo) => {
+    console.log(
+      'metamask_address',
+      walletAddress,
+      'chain_id',
+      chainId,
+      'signing_info',
+      signingInfo,
+    )
+    try {
+      const response = await api.patch('/api/user/', {
+        profile: {
+          metamask_address: walletAddress,
+          chain_id: chainId,
+          signing_info: signingInfo,
+        },
+      })
+
+      if (response.status === 200) {
+        alert('User updated!')
+        getUser()
+      } else {
+        alert('Failed to update user.')
+      }
+    } catch (err) {
+      console.error('Error updating user:', err)
+      alert(err)
+    }
+  }
+
+  const handleConnectMetaMask = () => {
+    connectToMetaMask()
+  }
+
   const getUser = () => {
     api
       .get('/api/user/')
       .then((res) => res.data)
       .then((data) => {
-        console.log(data)
         setFormData({
           username: data.username,
           email: data.email,
           first_name: data.first_name,
           last_name: data.last_name,
-          walletChain: data.wallet?.wallet_chain || '',
-          walletAddress: data.wallet?.wallet_address || '',
+          walletChain: data.profile?.chain_id || '',
+          walletAddress: data.profile?.metamask_address || '',
           city: data.address?.city || '',
           state: data.address?.state || '',
           country: data.address?.country || '',
@@ -42,13 +97,15 @@ function User() {
 
   const updateUser = (e) => {
     e.preventDefault()
-    console.log('Updating user with data:', formData)
     api
       .patch('/api/user/', formData)
       .then((res) => {
-        if (res.status === 200) alert('User updated!')
-        else alert('Failed to update user.')
-        getUser()
+        if (res.status === 200) {
+          alert('User updated!')
+          getUser()
+        } else {
+          alert('Failed to update user.')
+        }
       })
       .catch((err) => {
         console.error('Error updating user:', err)
@@ -210,6 +267,7 @@ function User() {
       <Link to="/" className="text-green-500 text-xs hover:text-blue-500">
         Back to Home
       </Link>
+      <button onClick={handleConnectMetaMask}>Connect MetaMask</button>
     </div>
   )
 }
