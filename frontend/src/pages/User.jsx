@@ -11,6 +11,7 @@ function User() {
     last_name: '',
     walletChain: '',
     walletAddress: '',
+    street: '',
     city: '',
     state: '',
     country: '',
@@ -42,14 +43,6 @@ function User() {
   }
 
   const updateMetaMaskInfo = async (walletAddress, chainId, signingInfo) => {
-    console.log(
-      'metamask_address',
-      walletAddress,
-      'chain_id',
-      chainId,
-      'signing_info',
-      signingInfo,
-    )
     try {
       const response = await api.patch('/api/user/', {
         profile: {
@@ -82,14 +75,15 @@ function User() {
       .then((data) => {
         setFormData({
           username: data.username,
-          email: data.email,
-          first_name: data.first_name,
-          last_name: data.last_name,
+          email: data.profile?.email,
+          first_name: data.profile?.first_name,
+          last_name: data.profile?.last_name,
           walletChain: data.profile?.chain_id || '',
           walletAddress: data.profile?.metamask_address || '',
-          city: data.address?.city || '',
-          state: data.address?.state || '',
-          country: data.address?.country || '',
+          street: data.profile?.street || '',
+          city: data.profile?.city || '',
+          state: data.profile?.state || '',
+          country: data.profile?.country || '',
         })
       })
       .catch((err) => alert(err))
@@ -98,7 +92,17 @@ function User() {
   const updateUser = (e) => {
     e.preventDefault()
     api
-      .patch('/api/user/', formData)
+      .patch('/api/user/', {
+        profile: {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          country: formData.country,
+        },
+      })
       .then((res) => {
         if (res.status === 200) {
           alert('User updated!')
@@ -108,11 +112,13 @@ function User() {
         }
       })
       .catch((err) => {
-        console.error('Error updating user:', err)
-        alert(err)
+        console.error(
+          'Error updating user:',
+          err.response ? err.response.data : err,
+        )
+        alert(err.response ? err.response.data : 'An error occurred')
       })
   }
-
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData({
@@ -196,6 +202,7 @@ function User() {
           placeholder="Wallet Chain"
           value={formData.walletChain}
           onChange={handleChange}
+          readOnly
         />
 
         <label
@@ -212,8 +219,9 @@ function User() {
           placeholder="Wallet Address"
           value={formData.walletAddress}
           onChange={handleChange}
+          readOnly
         />
-
+        <button onClick={handleConnectMetaMask}>Connect MetaMask</button>
         <h2 className="text-xl text-green-500 text-center mb-6">
           Address Information
         </h2>
@@ -267,7 +275,6 @@ function User() {
       <Link to="/" className="text-green-500 text-xs hover:text-blue-500">
         Back to Home
       </Link>
-      <button onClick={handleConnectMetaMask}>Connect MetaMask</button>
     </div>
   )
 }
