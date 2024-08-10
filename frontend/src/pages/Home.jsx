@@ -17,6 +17,7 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
 import Wallet from '../components/Wallet'
+import ConnectButton from '../components/ConnectWallet'
 
 function Home() {
   const [wallets, setWallets] = useState([])
@@ -104,6 +105,7 @@ function Home() {
           value="Submit"
         />
       </form>
+      <ConnectButton />
     </div>
   )
 }

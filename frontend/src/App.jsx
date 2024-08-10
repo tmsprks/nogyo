@@ -13,31 +13,31 @@ function Logout() {
   return <Navigate to="/" />
 }
 
-function RegisterAndLogout(){
+function RegisterAndLogout() {
   localStorage.clear()
   return <Register />
 }
 
-
 function App() {
   return (
-   <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Homepage />}/>
-      <Route
-        path="home"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        } />
-      <Route path="about" element={<About />}/>
-      <Route path="login" element={<Login />}/>
-      <Route path="logout" element={<Logout />}/>
-      <Route path="register" element={<RegisterAndLogout />}/>
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
-   </BrowserRouter> 
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route
+          path="home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="about" element={<About />} />
+        <Route path="login" element={<Login />} />
+        <Route path="logout" element={<Logout />} />
+        <Route path="register" element={<RegisterAndLogout />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

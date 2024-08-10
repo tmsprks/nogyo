@@ -4,6 +4,7 @@ from rest_framework import generics
 from .serializers import UserSerializer, WalletSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Wallet
+from rest_framework.exceptions import ValidationError
 
 
 class WalletListCreate(generics.ListCreateAPIView):
@@ -15,10 +16,13 @@ class WalletListCreate(generics.ListCreateAPIView):
         return Wallet.objects.filter(author=user)
     
     def perform_create(self, serializer):
+        user = self.request.user
+        if Wallet.objects.filter(author=user).exists():
+            raise ValidationError("Each user can only have one wallet.")
         if serializer.is_valid():
-            serializer.save(author=self.request.user)
+            serializer.save(author=user)
         else:
-            print(serializer.error)
+            print(serializer.errors)
 
 
 class WalletDelete(generics.DestroyAPIView):
