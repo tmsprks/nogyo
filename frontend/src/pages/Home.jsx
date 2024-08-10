@@ -1,19 +1,3 @@
-// import React from 'react'
-// import { Link } from 'react-router-dom'
-
-// const Home = () => {
-//   return (
-//     <div>
-//       <div>Home</div>
-//       <Link to="/logout" className="text-green-500 hover:text-blue-500">
-//         Logout
-//       </Link>
-//     </div>
-//   )
-// }
-
-// export default Home
-
 import { useState, useEffect } from 'react'
 import api from '../api'
 import Wallet from '../components/Wallet'
@@ -23,10 +7,23 @@ function Home() {
   const [wallets, setWallets] = useState([])
   const [wallet_chain, setBlockchain] = useState('')
   const [wallet_address, setWalletAddress] = useState('')
+  const [userInfo, setUserInfo] = useState('')
 
   useEffect(() => {
     getWallets()
+    getUser()
   }, [])
+
+  const getUser = () => {
+    api
+      .get('/api/user/')
+      .then((res) => res.data)
+      .then((data) => {
+        setUserInfo(data)
+        console.log(data)
+      })
+      .catch((err) => alert(err))
+  }
 
   const getWallets = () => {
     api
@@ -64,7 +61,10 @@ function Home() {
 
   return (
     <div className="max-w-md mx-auto bg-white p-8 border border-gray-300 rounded-lg shadow-md">
-      <h2 className="text-xl text-green-500 text-center mb-6">Wallets</h2>
+      <h2 className="text-xl text-green-500 text-center mb-6">
+        Hello, {userInfo.username}
+      </h2>
+      <h2 className="text-m text-green-500 text-center mb-6">Your Wallet:</h2>
       <div>
         {wallets.map((wallet) => (
           <Wallet wallet={wallet} onDelete={deleteWallet} key={wallet.id} />

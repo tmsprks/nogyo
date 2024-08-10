@@ -33,8 +33,15 @@ class WalletDelete(generics.DestroyAPIView):
         user = self.request.user
         return Wallet.objects.filter(author=user)
 
-# Create your views here.
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

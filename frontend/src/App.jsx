@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import About from './pages/About'
 import Homepage from './pages/Homepage'
 import Home from './pages/Home'
+import User from './pages/User'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import PageNotFound from './pages/PageNotFound'
@@ -28,6 +29,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="user"
+          element={
+            <ProtectedRoute>
+              <User />
             </ProtectedRoute>
           }
         />
