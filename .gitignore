@@ -169,3 +169,7 @@ dmypy.json
 
 # Pyre
 .pyre/
+
+#Hardhat files
+cache
+artifacts

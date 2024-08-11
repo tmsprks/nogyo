@@ -1,0 +1,4 @@
+# Hardhat files
+cache
+*/cache/
+artifacts
