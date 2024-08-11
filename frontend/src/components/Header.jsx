@@ -11,7 +11,10 @@ const Header = ({ isAuthenticated, username }) => {
         </Link>
       </div>
       <nav className="flex space-x-4">
-        <Link to="/" className="text-green-600 hover:text-green-800 transition">
+        <Link
+          to="/home"
+          className="text-green-600 hover:text-green-800 transition"
+        >
           Home
         </Link>
         <Link
@@ -21,7 +24,7 @@ const Header = ({ isAuthenticated, username }) => {
           About
         </Link>
         {isAuthenticated ? (
-          <Link to="/home" className="text-green-600">
+          <Link to="/user" className="text-green-600">
             {username}
           </Link>
         ) : (

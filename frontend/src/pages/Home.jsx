@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
+import ProducerDashboard from '../components/ProducerDashboard'
+import ConsumerDashboard from '../components/ConsumerDashboard'
+import IntermediaryDashboard from '../components/IntermediaryDashboard'
 
 function Home() {
   const [userInfo, setUserInfo] = useState('')
@@ -21,12 +24,22 @@ function Home() {
       .catch((err) => alert(err))
   }
 
+  const renderDashboard = () => {
+    switch (userType) {
+      case 'producer':
+        return <ProducerDashboard userInfo={userInfo} />
+      case 'consumer':
+        return <ConsumerDashboard userInfo={userInfo} />
+      case 'intermediary':
+        return <IntermediaryDashboard userInfo={userInfo} />
+      default:
+        return <p>Loading...</p>
+    }
+  }
+
   return (
     <div className="max-w-md mx-auto bg-white p-8 border border-gray-300 rounded-lg shadow-md">
-      <h2 className="text-xl text-green-500 text-center mb-6">
-        Hello, {userInfo.username}
-      </h2>
-      <h3>{userType}</h3>
+      {renderDashboard()}
     </div>
   )
 }
