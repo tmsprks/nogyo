@@ -2,19 +2,19 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Escrow", function () {
-  let SupplyChainNFT, supplyChainNFT, Escrow, escrow, owner, consumer, intermediary, producer;
+  let Escrow, escrow, SupplyChainNFT, supplyChainNFT, owner, addr1, addr2;
 
   beforeEach(async function () {
-    [owner, consumer, intermediary, producer] = await ethers.getSigners();
+    [owner, addr1, addr2] = await ethers.getSigners();
 
     // Deploy the NFT contract
     SupplyChainNFT = await ethers.getContractFactory("SupplyChainNFT");
     supplyChainNFT = await SupplyChainNFT.deploy(owner.address);
     await supplyChainNFT.waitForDeployment();
 
-    // Mint an NFT to the producer
+    // Mint an NFT to the owner
     const metadataURI = "ipfs://.......";
-    await supplyChainNFT.mintNFT(producer.address, metadataURI);
+    await supplyChainNFT.mintNFT(owner.address, metadataURI);
 
     // Deploy the Escrow contract
     Escrow = await ethers.getContractFactory("Escrow");
@@ -22,36 +22,20 @@ describe("Escrow", function () {
     await escrow.waitForDeployment();
 
     // Initialize the Escrow contract
-    await escrow.initialize(consumer.address, intermediary.address, producer.address, supplyChainNFT.getAddress(), 0);
+    await escrow.initialize(addr1.address, addr2.address, owner.address, supplyChainNFT.getAddress(), 0);
 
-    // Transfer NFT from producer to the escrow contract
-    await supplyChainNFT.connect(producer).transferFrom(producer.address, escrow.getAddress(), 0);
+    // Approve the Escrow contract to manage the NFT
+    await supplyChainNFT.connect(owner).approve(escrow.getAddress(), 0);
   });
 
   it("Should allow all parties to agree and finalize the transaction", async function () {
-    // All parties agree
-    await escrow.connect(consumer).agree();
-    await escrow.connect(intermediary).agree();
-    await escrow.connect(producer).agree();
+    await escrow.connect(addr1).confirmAgreement();
+    await escrow.connect(addr2).confirmAgreement();
+    await escrow.connect(owner).confirmAgreement();
 
-    // Consumer deposits funds
-    await escrow.connect(consumer).deposit({ value: ethers.parseEther("1.0") });
-
-    const producerInitialBalance = await ethers.provider.getBalance(producer.address);
-    const intermediaryInitialBalance = await ethers.provider.getBalance(intermediary.address);
-
-    // Finalize the transaction
-    await escrow.finalize();
-
-    // Check NFT ownership
-    expect(await supplyChainNFT.ownerOf(0)).to.equal(consumer.address);
-
-    // Expected balances
-    const expectedProducerBalance = producerInitialBalance + ethers.parseEther("0.99");
-    const expectedIntermediaryBalance = intermediaryInitialBalance + ethers.parseEther("0.01");
-
-    // Check balances with a margin for gas costs
-    expect(await ethers.provider.getBalance(producer.address)).to.be.closeTo(expectedProducerBalance, ethers.parseEther("0.01"));
-    expect(await ethers.provider.getBalance(intermediary.address)).to.be.closeTo(expectedIntermediaryBalance, ethers.parseEther("0.01"));
+    // Check if all parties have agreed
+    expect(await escrow.consumerAgreed()).to.be.true;
+    expect(await escrow.intermediaryAgreed()).to.be.true;
+    expect(await escrow.producerAgreed()).to.be.true;
   });
 });

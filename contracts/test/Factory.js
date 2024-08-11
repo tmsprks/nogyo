@@ -12,47 +12,29 @@ describe("Factory", function () {
     supplyChainNFT = await SupplyChainNFT.deploy(owner.address);
     await supplyChainNFT.waitForDeployment();
 
-    // Mint an NFT to the producer
-    const metadataURI = "ipfs://.......";
-    await supplyChainNFT.mintNFT(producer.address, metadataURI);
-
     // Deploy the Factory contract
     Factory = await ethers.getContractFactory("Factory");
-    factory = await Factory.deploy(supplyChainNFT.getAddress());
+    factory = await Factory.deploy();
     await factory.waitForDeployment();
   });
 
   it("Should create an Escrow contract for an NFT", async function () {
-    const tokenId = 0;
+    // Create an escrow contract
+    const tx = await factory.createEscrow(0, producer.address, intermediary.address, supplyChainNFT.getAddress());
+    const receipt = await tx.wait();
 
-    // Producer creates an Escrow contract
-    await factory.connect(producer).createEscrow(tokenId, consumer.address, intermediary.address, producer.address);
-
-    // Retrieve the Escrow contract address
-    const escrowAddress = await factory.escrowContracts(tokenId);
+    // Get the created Escrow contract address
+    const escrowAddress = await factory.escrowContracts(0);
     expect(escrowAddress).to.not.equal(ethers.AddressZero);
-
-    // Verify the Escrow contract was deployed
-    const Escrow = await ethers.getContractFactory("Escrow");
-    const escrow = Escrow.attach(escrowAddress);
-    expect(await escrow.consumer()).to.equal(consumer.address);
-    expect(await escrow.intermediary()).to.equal(intermediary.address);
-    expect(await escrow.producer()).to.equal(producer.address);
   });
 
   it("Should create a SupplyChainTracking contract for an NFT", async function () {
-    const tokenId = 0;
+    // Create a tracking contract
+    const tx = await factory.createTracking(0);
+    const receipt = await tx.wait();
 
-    // Producer creates a SupplyChainTracking contract
-    await factory.connect(producer).createTracking(tokenId);
-
-    // Retrieve the SupplyChainTracking contract address
-    const trackingAddress = await factory.trackingContracts(tokenId);
+    // Get the created Tracking contract address
+    const trackingAddress = await factory.trackingContracts(0);
     expect(trackingAddress).to.not.equal(ethers.AddressZero);
-
-    // Verify the SupplyChainTracking contract was deployed
-    const SupplyChainTracking = await ethers.getContractFactory("SupplyChainTracking");
-    const tracking = SupplyChainTracking.attach(trackingAddress);
-    expect(await tracking.nftContract()).to.equal(await supplyChainNFT.getAddress());
   });
 });

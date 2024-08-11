@@ -16,11 +16,11 @@ contract SupplyChainNFT is ERC721URIStorage, Ownable {
 
     function mintNFT(
         address recipient,
-        string memory metadataURI
-    ) public onlyOwner returns (uint256) {
+        string memory tokenURI
+    ) public returns (uint256) {
         uint256 newItemId = tokenCounter;
-        _mint(recipient, newItemId);
-        _setTokenURI(newItemId, metadataURI);
+        _safeMint(recipient, newItemId);
+        _setTokenURI(newItemId, tokenURI);
         tokenCounter += 1;
         return newItemId;
     }

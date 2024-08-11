@@ -13,40 +13,30 @@ contract Factory {
     event EscrowCreated(uint256 indexed tokenId, address escrowAddress);
     event TrackingCreated(uint256 indexed tokenId, address trackingAddress);
 
-    constructor(address _nftContract) {
-        nftContract = IERC721(_nftContract);
-    }
-
     function createEscrow(
         uint256 tokenId,
-        address consumer,
+        address producer,
         address intermediary,
-        address producer
-    ) public {
-        require(
-            nftContract.ownerOf(tokenId) == msg.sender,
-            "Only NFT owner can create escrow"
+        address nftContractAddress
+    ) external returns (address) {
+        Escrow escrow = new Escrow();
+        escrow.initialize(
+            address(0), // Consumer (buyer) is initially unknown
+            intermediary, // Intermediary address
+            producer, // Producer (seller) address
+            IERC721(nftContractAddress), // NFT contract address
+            tokenId // NFT token ID
         );
-        Escrow newEscrow = new Escrow();
-        newEscrow.initialize(
-            consumer,
-            intermediary,
-            producer,
-            address(nftContract),
-            tokenId
-        );
-        escrowContracts[tokenId] = address(newEscrow);
-        emit EscrowCreated(tokenId, address(newEscrow));
+        escrowContracts[tokenId] = address(escrow);
+        emit EscrowCreated(tokenId, address(escrow));
+        return address(escrow);
     }
 
-    function createTracking(uint256 tokenId) public {
-        require(
-            nftContract.ownerOf(tokenId) == msg.sender,
-            "Only NFT owner can create tracking"
-        );
-        SupplyChainTracking newTracking = new SupplyChainTracking();
-        newTracking.initialize(address(nftContract));
-        trackingContracts[tokenId] = address(newTracking);
-        emit TrackingCreated(tokenId, address(newTracking));
+    function createTracking(uint256 tokenId) external returns (address) {
+        SupplyChainTracking tracking = new SupplyChainTracking();
+        tracking.initialize(address(nftContract));
+        trackingContracts[tokenId] = address(tracking);
+        emit TrackingCreated(tokenId, address(tracking));
+        return address(tracking);
     }
 }
