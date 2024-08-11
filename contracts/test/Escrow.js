@@ -2,54 +2,56 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Escrow", function () {
-    let SupplyChainNFT, supplyChainNFT, Escrow, escrow, owner, consumer, intermediary, producer, supplyChainNFTAddress, escrowContractAddress;
+  let SupplyChainNFT, supplyChainNFT, Escrow, escrow, owner, consumer, intermediary, producer;
 
-    beforeEach(async function () {
-        [owner, consumer, intermediary, producer] = await ethers.getSigners();
+  beforeEach(async function () {
+    [owner, consumer, intermediary, producer] = await ethers.getSigners();
 
-        // Deploy the NFT contract
-        SupplyChainNFT = await ethers.getContractFactory("SupplyChainNFT");
-        supplyChainNFT = await SupplyChainNFT.deploy(owner.address);
-        await supplyChainNFT.waitForDeployment();
-        supplyChainNFTAddress = supplyChainNFT.getAddress();
+    // Deploy the NFT contract
+    SupplyChainNFT = await ethers.getContractFactory("SupplyChainNFT");
+    supplyChainNFT = await SupplyChainNFT.deploy(owner.address);
+    await supplyChainNFT.waitForDeployment();
 
-        // Mint an NFT to the producer
-        await supplyChainNFT.mintNFT(producer.address);
+    // Mint an NFT to the producer
+    const metadataURI = "ipfs://.......";
+    await supplyChainNFT.mintNFT(producer.address, metadataURI);
 
-        // Deploy the Escrow contract
-        Escrow = await ethers.getContractFactory("Escrow");
-        escrow = await Escrow.deploy(consumer.address, intermediary.address, producer.address, supplyChainNFTAddress, 0);
-        await escrow.waitForDeployment();
-        escrowContractAddress = escrow.getAddress();
+    // Deploy the Escrow contract
+    Escrow = await ethers.getContractFactory("Escrow");
+    escrow = await Escrow.deploy();
+    await escrow.waitForDeployment();
 
-        // Transfer NFT from producer to the escrow contract
-        await supplyChainNFT.connect(producer).transferFrom(producer.address, escrowContractAddress, 0);
-    });
+    // Initialize the Escrow contract
+    await escrow.initialize(consumer.address, intermediary.address, producer.address, supplyChainNFT.getAddress(), 0);
 
-    it("Should allow all parties to agree and finalize the transaction", async function () {
-        // All parties agree
-        await escrow.connect(consumer).agree();
-        await escrow.connect(intermediary).agree();
-        await escrow.connect(producer).agree();
+    // Transfer NFT from producer to the escrow contract
+    await supplyChainNFT.connect(producer).transferFrom(producer.address, escrow.getAddress(), 0);
+  });
 
-        // Consumer deposits funds
-        await escrow.connect(consumer).deposit({ value: ethers.parseEther("1.0") });
+  it("Should allow all parties to agree and finalize the transaction", async function () {
+    // All parties agree
+    await escrow.connect(consumer).agree();
+    await escrow.connect(intermediary).agree();
+    await escrow.connect(producer).agree();
 
-        const producerInitialBalance = await ethers.provider.getBalance(producer.address);
-        const intermediaryInitialBalance = await ethers.provider.getBalance(intermediary.address);
+    // Consumer deposits funds
+    await escrow.connect(consumer).deposit({ value: ethers.parseEther("1.0") });
 
-        // Finalize the transaction
-        await escrow.finalize();
+    const producerInitialBalance = await ethers.provider.getBalance(producer.address);
+    const intermediaryInitialBalance = await ethers.provider.getBalance(intermediary.address);
 
-        // Check NFT ownership
-        expect(await supplyChainNFT.ownerOf(0)).to.equal(consumer.address);
+    // Finalize the transaction
+    await escrow.finalize();
 
-        // Expected balances
-        const expectedProducerBalance = producerInitialBalance + (ethers.parseEther("0.99")); // 80% of 1.0 ether
-        const expectedIntermediaryBalance = intermediaryInitialBalance + (ethers.parseEther("0.01")); // 20% of 1.0 ether
+    // Check NFT ownership
+    expect(await supplyChainNFT.ownerOf(0)).to.equal(consumer.address);
 
-        // Check balances with a margin for gas costs
-        expect(await ethers.provider.getBalance(producer.address)).to.be.closeTo(expectedProducerBalance, ethers.parseEther("0.01"));
-        expect(await ethers.provider.getBalance(intermediary.address)).to.be.closeTo(expectedIntermediaryBalance, ethers.parseEther("0.01"));
-    });
+    // Expected balances
+    const expectedProducerBalance = producerInitialBalance + ethers.parseEther("0.99");
+    const expectedIntermediaryBalance = intermediaryInitialBalance + ethers.parseEther("0.01");
+
+    // Check balances with a margin for gas costs
+    expect(await ethers.provider.getBalance(producer.address)).to.be.closeTo(expectedProducerBalance, ethers.parseEther("0.01"));
+    expect(await ethers.provider.getBalance(intermediary.address)).to.be.closeTo(expectedIntermediaryBalance, ethers.parseEther("0.01"));
+  });
 });

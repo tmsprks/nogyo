@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -12,14 +12,16 @@ contract Escrow {
     bool public consumerAgreed;
     bool public intermediaryAgreed;
     bool public producerAgreed;
+    bool public initialized;
 
-    constructor(
+    function initialize(
         address _consumer,
         address _intermediary,
         address _producer,
         address _nftContract,
         uint256 _nftTokenId
-    ) {
+    ) external {
+        require(!initialized, "Already initialized");
         consumer = _consumer;
         intermediary = _intermediary;
         producer = _producer;
@@ -28,6 +30,7 @@ contract Escrow {
         consumerAgreed = false;
         intermediaryAgreed = false;
         producerAgreed = false;
+        initialized = true;
     }
 
     function agree() public {
@@ -51,15 +54,11 @@ contract Escrow {
             consumerAgreed && intermediaryAgreed && producerAgreed,
             "All parties must agree"
         );
-        // Transfer NFT to consumer
         nftContract.transferFrom(address(this), consumer, nftTokenId);
-        // Transfer funds to producer and intermediary
-        // Assuming the contract holds the funds
         uint256 balance = address(this).balance;
         payable(producer).transfer((balance * 99) / 100);
         payable(intermediary).transfer((balance * 1) / 100);
     }
 
-    // Function to deposit funds to the contract
     function deposit() public payable {}
 }

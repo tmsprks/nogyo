@@ -11,9 +11,11 @@ describe("SupplyChainNFT", function () {
     await supplyChainNFT.waitForDeployment();
   });
 
-  it("Should mint an NFT and assign it to the recipient", async function () {
-    await supplyChainNFT.mintNFT(addr1.address);
+  it("Should mint an NFT with metadata and assign it to the recipient", async function () {
+    const metadataURI = "ipfs://.......";
+    await supplyChainNFT.mintNFT(addr1.address, metadataURI);
     expect(await supplyChainNFT.ownerOf(0)).to.equal(addr1.address);
+    expect(await supplyChainNFT.tokenURI(0)).to.equal(metadataURI);
   });
 
   it("Should set the correct initial owner", async function () {

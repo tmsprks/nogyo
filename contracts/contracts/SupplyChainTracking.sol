@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -13,16 +13,12 @@ contract SupplyChainTracking {
 
     IERC721 public nftContract;
     mapping(uint256 => Product[]) public productHistory;
+    bool public initialized;
 
-    event ProductStatusUpdated(
-        uint256 indexed tokenId,
-        string status,
-        string location,
-        uint256 timestamp
-    );
-
-    constructor(address _nftContract) {
+    function initialize(address _nftContract) external {
+        require(!initialized, "Already initialized");
         nftContract = IERC721(_nftContract);
+        initialized = true;
     }
 
     function updateProductStatus(
@@ -38,7 +34,6 @@ contract SupplyChainTracking {
             timestamp: block.timestamp
         });
         productHistory[tokenId].push(newStatus);
-        emit ProductStatusUpdated(tokenId, status, location, block.timestamp);
     }
 
     function getProductHistory(
