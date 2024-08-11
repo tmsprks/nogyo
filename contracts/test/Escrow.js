@@ -45,8 +45,8 @@ describe("Escrow", function () {
         expect(await supplyChainNFT.ownerOf(0)).to.equal(consumer.address);
 
         // Expected balances
-        const expectedProducerBalance = producerInitialBalance + (ethers.parseEther("0.8")); // 80% of 1.0 ether
-        const expectedIntermediaryBalance = intermediaryInitialBalance + (ethers.parseEther("0.2")); // 20% of 1.0 ether
+        const expectedProducerBalance = producerInitialBalance + (ethers.parseEther("0.99")); // 80% of 1.0 ether
+        const expectedIntermediaryBalance = intermediaryInitialBalance + (ethers.parseEther("0.01")); // 20% of 1.0 ether
 
         // Check balances with a margin for gas costs
         expect(await ethers.provider.getBalance(producer.address)).to.be.closeTo(expectedProducerBalance, ethers.parseEther("0.01"));

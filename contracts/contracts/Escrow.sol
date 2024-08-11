@@ -56,8 +56,8 @@ contract Escrow {
         // Transfer funds to producer and intermediary
         // Assuming the contract holds the funds
         uint256 balance = address(this).balance;
-        payable(producer).transfer((balance * 80) / 100);
-        payable(intermediary).transfer((balance * 20) / 100);
+        payable(producer).transfer((balance * 99) / 100);
+        payable(intermediary).transfer((balance * 1) / 100);
     }
 
     // Function to deposit funds to the contract
